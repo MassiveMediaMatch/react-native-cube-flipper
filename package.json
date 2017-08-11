@@ -1,0 +1,17 @@
+
+{
+  "name": "react-native-cube-flipper",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "keywords": [
+    "react-native", "cube", "instragram", "stories", "animation"
+  ],
+  "author": "",
+  "license": "",
+  "peerDependencies": {
+    "react-native": "^0.41.2",
+    "react-native-windows": "0.41.0-rc.1"
+
+  }
+}
