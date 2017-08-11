@@ -3,7 +3,7 @@
 
 ## Getting started
 
-`$ npm install react-native-cube-flipper --save`
+`$ npm install git+https://github.com/LauR3y/CubeFlipper.git --save`
 
 ### Mostly automatic installation
 
