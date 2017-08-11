@@ -22,8 +22,8 @@
 #### Android
 
 1. Open up `android/app/src/main/java/[...]/MainActivity.java`
-  - Add `import com.reactlibrary.RNCubeFlipperPackage;` to the imports at the top of the file
-  - Add `new RNCubeFlipperPackage()` to the list returned by the `getPackages()` method
+  - Add `import be.laurensverschuere.CubeFlipperPackage;` to the imports at the top of the file
+  - Add `new CubeFlipperPackage()` to the list returned by the `getPackages()` method
 2. Append the following lines to `android/settings.gradle`:
   	```
   	include ':react-native-cube-flipper'
@@ -34,17 +34,8 @@
       compile project(':react-native-cube-flipper')
   	```
 
-#### Windows
-[Read it! :D](https://github.com/ReactWindows/react-native)
-
-1. In Visual Studio add the `RNCubeFlipper.sln` in `node_modules/react-native-cube-flipper/windows/RNCubeFlipper.sln` folder to their solution, reference from their app.
-2. Open up your `MainPage.cs` app
-  - Add `using Com.Reactlibrary.RNCubeFlipper;` to the usings at the top of the file
-  - Add `new RNCubeFlipperPackage()` to the `List<IReactPackage>` returned by the `Packages` method
-
-
 ## Usage
 ```javascript
-import RNCubeFlipper from 'react-native-cube-flipper';
+import CubeFlipper from 'react-native-cube-flipper';
 ```
   
