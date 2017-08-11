@@ -5,6 +5,8 @@
 
 `$ npm install git+https://github.com/LauR3y/CubeFlipper.git --save`
 
+`$ yarn add git+https://github.com/LauR3y/CubeFlipper.git`
+
 ### Mostly automatic installation
 
 `$ react-native link react-native-cube-flipper`
