@@ -1,12 +1,12 @@
 //
-//  RNCubeFlipper.m
-//  RNCubeFlipper
+//  RCTCubeFlipper.m
+//  RCTCubeFlipper
 //
 
 #import <Foundation/Foundation.h>
-#import "CubeFlipper.h"
+#import "RCTCubeFlipper.h"
 
-@interface CubeFlipper()
+@interface RCTCubeFlipper()
 @property (nonatomic, assign) CGPoint initialCenter;
 @property (nonatomic, assign) int currentIndex;
 @property (nonatomic, assign) int nextIndex;
@@ -22,7 +22,7 @@
 
 @end
 
-@implementation CubeFlipper
+@implementation RCTCubeFlipper
 
 - (instancetype)init {
     if ((self = [super init])) {

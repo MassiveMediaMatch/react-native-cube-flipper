@@ -1,7 +1,11 @@
 import React from 'react';
-import { requireNativeComponent, ViewPagerAndroid } from 'react-native';
+import { requireNativeComponent, Platform, ViewPagerAndroid } from 'react-native';
 
-export default class CubeFlipper extends ViewPagerAndroid {
+class CubeFlipper extends React.Component {
+	static propTypes = {
+		...ViewPagerAndroid.propTypes
+	}
+
 	render() {
 		return (
 			<RCTCubeFlipper
@@ -11,4 +15,6 @@ export default class CubeFlipper extends ViewPagerAndroid {
 	}
 }
 
-const RCTCubeFlipper = requireNativeComponent('RCTCubeFlipper', ViewPagerAndroid);
+var RCTCubeFlipper = requireNativeComponent('RCTCubeFlipper', CubeFlipper);
+
+module.exports = CubeFlipper;

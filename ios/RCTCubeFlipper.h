@@ -1,7 +1,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface CubeFlipper : UIView
+@interface RCTCubeFlipper : UIView
 
 @end
   

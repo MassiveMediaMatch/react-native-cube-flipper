@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1F3B029B1F3C94D8002CAB89 /* CubeFlipperManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F3B029A1F3C94D8002CAB89 /* CubeFlipperManager.m */; };
-		B3E7B58A1CC2AC0600A0062D /* CubeFlipper.m in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* CubeFlipper.m */; };
+		1F3B029B1F3C94D8002CAB89 /* RCTCubeFlipperManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F3B029A1F3C94D8002CAB89 /* RCTCubeFlipperManager.m */; };
+		B3E7B58A1CC2AC0600A0062D /* RCTCubeFlipper.m in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* RCTCubeFlipper.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,11 +24,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		134814201AA4EA6300B7C361 /* libRNCubeFlipper.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNCubeFlipper.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		1F3B02991F3C94D8002CAB89 /* CubeFlipperManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CubeFlipperManager.h; sourceTree = "<group>"; };
-		1F3B029A1F3C94D8002CAB89 /* CubeFlipperManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CubeFlipperManager.m; sourceTree = "<group>"; };
-		B3E7B5881CC2AC0600A0062D /* CubeFlipper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CubeFlipper.h; sourceTree = "<group>"; };
-		B3E7B5891CC2AC0600A0062D /* CubeFlipper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CubeFlipper.m; sourceTree = "<group>"; };
+		134814201AA4EA6300B7C361 /* libRCTCubeFlipper.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRCTCubeFlipper.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1F3B02991F3C94D8002CAB89 /* RCTCubeFlipperManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTCubeFlipperManager.h; sourceTree = "<group>"; };
+		1F3B029A1F3C94D8002CAB89 /* RCTCubeFlipperManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTCubeFlipperManager.m; sourceTree = "<group>"; };
+		B3E7B5881CC2AC0600A0062D /* RCTCubeFlipper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTCubeFlipper.h; sourceTree = "<group>"; };
+		B3E7B5891CC2AC0600A0062D /* RCTCubeFlipper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTCubeFlipper.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,7 +45,7 @@
 		134814211AA4EA7D00B7C361 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				134814201AA4EA6300B7C361 /* libRNCubeFlipper.a */,
+				134814201AA4EA6300B7C361 /* libRCTCubeFlipper.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -53,10 +53,10 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
-				B3E7B5881CC2AC0600A0062D /* CubeFlipper.h */,
-				B3E7B5891CC2AC0600A0062D /* CubeFlipper.m */,
-				1F3B02991F3C94D8002CAB89 /* CubeFlipperManager.h */,
-				1F3B029A1F3C94D8002CAB89 /* CubeFlipperManager.m */,
+				B3E7B5881CC2AC0600A0062D /* RCTCubeFlipper.h */,
+				B3E7B5891CC2AC0600A0062D /* RCTCubeFlipper.m */,
+				1F3B02991F3C94D8002CAB89 /* RCTCubeFlipperManager.h */,
+				1F3B029A1F3C94D8002CAB89 /* RCTCubeFlipperManager.m */,
 				134814211AA4EA7D00B7C361 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -64,9 +64,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		58B511DA1A9E6C8500147676 /* RNCubeFlipper */ = {
+		58B511DA1A9E6C8500147676 /* RCTCubeFlipper */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "RNCubeFlipper" */;
+			buildConfigurationList = 58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "RCTCubeFlipper" */;
 			buildPhases = (
 				58B511D71A9E6C8500147676 /* Sources */,
 				58B511D81A9E6C8500147676 /* Frameworks */,
@@ -76,9 +76,9 @@
 			);
 			dependencies = (
 			);
-			name = RNCubeFlipper;
+			name = RCTCubeFlipper;
 			productName = RCTDataManager;
-			productReference = 134814201AA4EA6300B7C361 /* libRNCubeFlipper.a */;
+			productReference = 134814201AA4EA6300B7C361 /* libRCTCubeFlipper.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -95,7 +95,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 58B511D61A9E6C8500147676 /* Build configuration list for PBXProject "RNCubeFlipper" */;
+			buildConfigurationList = 58B511D61A9E6C8500147676 /* Build configuration list for PBXProject "RCTCubeFlipper" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -107,7 +107,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				58B511DA1A9E6C8500147676 /* RNCubeFlipper */,
+				58B511DA1A9E6C8500147676 /* RCTCubeFlipper */,
 			);
 		};
 /* End PBXProject section */
@@ -117,8 +117,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B3E7B58A1CC2AC0600A0062D /* CubeFlipper.m in Sources */,
-				1F3B029B1F3C94D8002CAB89 /* CubeFlipperManager.m in Sources */,
+				B3E7B58A1CC2AC0600A0062D /* RCTCubeFlipper.m in Sources */,
+				1F3B029B1F3C94D8002CAB89 /* RCTCubeFlipperManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -210,7 +210,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = RNCubeFlipper;
+				PRODUCT_NAME = RCTCubeFlipper;
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -226,7 +226,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = RNCubeFlipper;
+				PRODUCT_NAME = RCTCubeFlipper;
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
@@ -234,7 +234,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		58B511D61A9E6C8500147676 /* Build configuration list for PBXProject "RNCubeFlipper" */ = {
+		58B511D61A9E6C8500147676 /* Build configuration list for PBXProject "RCTCubeFlipper" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				58B511ED1A9E6C8500147676 /* Debug */,
@@ -243,7 +243,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "RNCubeFlipper" */ = {
+		58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "RCTCubeFlipper" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				58B511F01A9E6C8500147676 /* Debug */,
