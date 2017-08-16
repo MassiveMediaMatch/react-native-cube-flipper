@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
 
 public class CubeFlipperViewManager extends ReactViewPagerManager {
 
-	protected static final String REACT_CLASS = "CubeFlipper";
+	protected static final String REACT_CLASS = "RCTCubeFlipper";
 
 	@Override public String getName() {
 		return CubeFlipperViewManager.REACT_CLASS;
