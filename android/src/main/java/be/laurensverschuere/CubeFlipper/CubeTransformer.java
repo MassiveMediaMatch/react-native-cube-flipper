@@ -34,5 +34,9 @@ public class CubeTransformer implements ViewPager.PageTransformer {
 		else {
 			page.setRotationY(- (position * position * 60));
 		}
+
+		if (position == 0) {
+			page.bringToFront();
+		}
 	}
 }
