@@ -3,7 +3,6 @@ package be.laurensverschuere.CubeFlipper;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.bridge.ReactMethod;
 
 public class CubeFlipperModule extends ReactContextBaseJavaModule {
 
@@ -13,7 +12,7 @@ public class CubeFlipperModule extends ReactContextBaseJavaModule {
 
   @Override
   public String getName() {
-    return CubeFlipperViewManager.REACT_CLASS;
+    return CubeFlipperViewPagerManager.REACT_CLASS;
   }
 
   @Override public void initialize() {

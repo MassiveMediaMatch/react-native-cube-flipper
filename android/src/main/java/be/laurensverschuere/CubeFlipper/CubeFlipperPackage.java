@@ -24,6 +24,6 @@ public class CubeFlipperPackage implements ReactPackage {
 
     @Override
     public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
-        return Collections.<ViewManager>singletonList(new CubeFlipperViewManager());
+        return Collections.<ViewManager>singletonList(new CubeFlipperViewPagerManager());
     }
 }
