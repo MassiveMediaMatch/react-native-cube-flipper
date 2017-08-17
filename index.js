@@ -9,7 +9,6 @@ class CubeFlipper extends React.Component {
 		onPageScroll?: Function,
 		onPageScrollStateChanged?: Function,
 		onPageSelected?: Function,
-		pageMargin?: Number,
 		peekEnabled?: boolean,
 		keyboardDismissMode?: 'none' | 'on-drag',
 		scrollEnabled?: boolean,
@@ -46,12 +45,6 @@ class CubeFlipper extends React.Component {
 		 *  - position - index of page that has been selected
 		 */
 		onPageSelected: PropTypes.func,
-
-		/**
-		 * Blank space to show between pages. This is only visible while scrolling, pages are still
-		 * edge-to-edge.
-		 */
-		pageMargin: PropTypes.number,
 
 		/**
 		 * Determines whether the keyboard gets dismissed in response to a drag.
