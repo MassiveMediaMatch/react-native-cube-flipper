@@ -33,7 +33,7 @@ public class CubeFlipperViewPagerManager extends ViewGroupManager<CubeFlipperVie
 
 
 	@ReactProp(name = "scrollEnabled", defaultBoolean = true)
-	public void setScrollEnabled(ReactViewPager viewPager, boolean value) {
+	public void setScrollEnabled(CubeFlipperViewPager viewPager, boolean value) {
 		viewPager.setScrollEnabled(value);
 	}
 
