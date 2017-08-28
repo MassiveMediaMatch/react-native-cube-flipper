@@ -1,5 +1,6 @@
 package be.laurensverschuere.CubeFlipper;
 
+import android.support.v4.view.ViewPager;
 import android.view.View;
 import com.facebook.infer.annotation.Assertions;
 import com.facebook.react.bridge.ReadableArray;
@@ -35,6 +36,23 @@ public class CubeFlipperViewPagerManager extends ViewGroupManager<CubeFlipperVie
 	@ReactProp(name = "scrollEnabled", defaultBoolean = true)
 	public void setScrollEnabled(CubeFlipperViewPager viewPager, boolean value) {
 		viewPager.setScrollEnabled(value);
+	}
+
+	@ReactProp(name = "swipeDirection")
+	public void setSwipeDirection(CubeFlipperViewPager viewPager, String value) {
+		switch (value) {
+			case "none":
+				viewPager.setAllowedSwipeDirection(CubeFlipperViewPager.SwipeDirection.none);
+				break;
+			case "left":
+				viewPager.setAllowedSwipeDirection(CubeFlipperViewPager.SwipeDirection.left);
+				break;
+			case "right":
+				viewPager.setAllowedSwipeDirection(CubeFlipperViewPager.SwipeDirection.right);
+				break;
+			default:
+				viewPager.setAllowedSwipeDirection(CubeFlipperViewPager.SwipeDirection.all);
+		}
 	}
 
 	@Override

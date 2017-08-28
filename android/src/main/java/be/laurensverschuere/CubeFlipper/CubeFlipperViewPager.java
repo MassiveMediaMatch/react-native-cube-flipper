@@ -24,6 +24,10 @@ import java.util.List;
 
 public class CubeFlipperViewPager extends ViewPager {
 
+	public enum SwipeDirection {
+		all, left, right, none ;
+	}
+
 	private class CubePagerAdapter extends PagerAdapter {
 
 		private final List<View> mViews = new ArrayList<>();
@@ -149,6 +153,8 @@ public class CubeFlipperViewPager extends ViewPager {
 
 	private final EventDispatcher mEventDispatcher;
 	private boolean mScrollEnabled = true;
+	private float initialXValue;
+	private SwipeDirection direction;
 
 	public CubeFlipperViewPager(ReactContext reactContext) {
 		super(reactContext);
@@ -169,6 +175,10 @@ public class CubeFlipperViewPager extends ViewPager {
 			return false;
 		}
 
+		if (!IsSwipeAllowed(ev)) {
+			return false;
+		}
+
 		if (super.onInterceptTouchEvent(ev)) {
 			NativeGestureUtil.notifyNativeGestureStarted(this, ev);
 			return true;
@@ -182,7 +192,47 @@ public class CubeFlipperViewPager extends ViewPager {
 			return false;
 		}
 
+		if (!IsSwipeAllowed(ev)) {
+			return false;
+		}
+
 		return super.onTouchEvent(ev);
+	}
+
+	private boolean IsSwipeAllowed(MotionEvent event) {
+		if(this.direction == SwipeDirection.all) {
+			return true;
+		}
+
+		if(this.direction == SwipeDirection.none ) {//disable any swipe
+			return false;
+		}
+
+		if(event.getAction()==MotionEvent.ACTION_DOWN) {
+			initialXValue = event.getX();
+			return true;
+		}
+
+		if(event.getAction()==MotionEvent.ACTION_MOVE) {
+			try {
+				float diffX = event.getX() - initialXValue;
+				if (diffX > 0 && direction == SwipeDirection.right ) {
+					// swipe from left to right detected
+					return false;
+				}else if (diffX < 0 && direction == SwipeDirection.left ) {
+					// swipe from right to left detected
+					return false;
+				}
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
+		}
+
+		return true;
+	}
+
+	public void setAllowedSwipeDirection(SwipeDirection direction) {
+		this.direction = direction;
 	}
 
 	public void setCurrentItemFromJs(int item, boolean animated) {

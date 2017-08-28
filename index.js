@@ -12,6 +12,7 @@ class CubeFlipper extends React.Component {
 		peekEnabled?: boolean,
 		keyboardDismissMode?: 'none' | 'on-drag',
 		scrollEnabled?: boolean,
+		swipeDirection?: 'all' | 'left' | 'right' | 'none'
 	};
 
 	static propTypes = {
@@ -61,6 +62,16 @@ class CubeFlipper extends React.Component {
 		* The default value is true.
 		*/
 		scrollEnabled: PropTypes.bool,
+
+		/**
+		 * 
+		 */
+		swipeDirection: PropTypes.oneOf([
+			'all', // default
+			'left',
+			'right',
+			'none'
+		]),
 
 		/**
 		 * Whether enable showing peekFraction or not. If this is true, the preview of
