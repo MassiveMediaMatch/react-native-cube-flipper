@@ -26,6 +26,7 @@ class CubeFlipper extends React.Component {
 		 *  - offset - value from range [0,1) describing stage between page transitions.
 		 *    Value x means that (1 - x) fraction of the page at "position" index is
 		 *    visible, and x fraction of the next page is visible.
+		 *  - manual - bool if swiped
 		 */
 		onPageScroll: PropTypes.func,
 
@@ -44,6 +45,7 @@ class CubeFlipper extends React.Component {
 		 * (when user swipes between pages). The `event.nativeEvent` object passed to this
 		 * callback will have following fields:
 		 *  - position - index of page that has been selected
+		 *  - manual - bool if swiped
 		 */
 		onPageSelected: PropTypes.func,
 

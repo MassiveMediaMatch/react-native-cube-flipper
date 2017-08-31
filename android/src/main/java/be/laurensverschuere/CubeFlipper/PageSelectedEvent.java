@@ -14,10 +14,12 @@ public class PageSelectedEvent extends Event<PageSelectedEvent> {
 	public static final String EVENT_NAME = "topPageSelected";
 
 	private final int mPosition;
+	private final boolean mManualScroll;
 
-	protected PageSelectedEvent(int viewTag, int position) {
+	protected PageSelectedEvent(int viewTag, int position, boolean manualScroll) {
 		super(viewTag);
 		mPosition = position;
+		mManualScroll = manualScroll;
 	}
 
 	@Override
@@ -33,6 +35,7 @@ public class PageSelectedEvent extends Event<PageSelectedEvent> {
 	private WritableMap serializeEventData() {
 		WritableMap eventData = Arguments.createMap();
 		eventData.putInt("position", mPosition);
+		eventData.putBoolean("manualScroll", mManualScroll);
 		return eventData;
 	}
 }

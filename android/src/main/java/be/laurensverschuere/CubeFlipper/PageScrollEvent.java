@@ -15,14 +15,18 @@ public class PageScrollEvent extends Event<PageScrollEvent> {
 
 	private final int mPosition;
 	private final float mOffset;
+	private final boolean mManualScroll;
 
-	protected PageScrollEvent(int viewTag, int position, float offset) {
+	protected PageScrollEvent(int viewTag, int position, float offset, boolean manualScroll) {
 		super(viewTag);
 		mPosition = position;
 
 		// folly::toJson default options don't support serialize NaN or Infinite value
 		mOffset = (Float.isInfinite(offset) || Float.isNaN(offset))
 				? 0.0f : offset;
+
+		mManualScroll = manualScroll;
+
 	}
 
 	@Override
@@ -39,6 +43,7 @@ public class PageScrollEvent extends Event<PageScrollEvent> {
 		WritableMap eventData = Arguments.createMap();
 		eventData.putInt("position", mPosition);
 		eventData.putDouble("offset", mOffset);
+		eventData.putBoolean("manualScroll", mManualScroll);
 		return eventData;
 	}
 }

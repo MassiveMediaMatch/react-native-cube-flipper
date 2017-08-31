@@ -121,12 +121,12 @@ public class CubeFlipperViewPager extends ViewPager {
 		@Override
 		public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 			mEventDispatcher.dispatchEvent(
-					new PageScrollEvent(getId(), position, positionOffset));
+					new PageScrollEvent(getId(), position, positionOffset, mIsCurrentItemFromJs == false));
 		}
 
 		@Override
 		public void onPageSelected(int position) {
-			mEventDispatcher.dispatchEvent(new PageSelectedEvent(getId(), position));
+			mEventDispatcher.dispatchEvent(new PageSelectedEvent(getId(), position, mIsCurrentItemFromJs == false));
 		}
 
 		@Override
@@ -153,12 +153,14 @@ public class CubeFlipperViewPager extends ViewPager {
 
 	private final EventDispatcher mEventDispatcher;
 	private boolean mScrollEnabled = true;
+	private boolean mIsCurrentItemFromJs = false;
 	private float initialXValue;
 	private SwipeDirection direction;
 
 	public CubeFlipperViewPager(ReactContext reactContext) {
 		super(reactContext);
 		mEventDispatcher = reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher();
+		mIsCurrentItemFromJs = false;
 		addOnPageChangeListener(new PageChangeListener());
 		setAdapter(new CubePagerAdapter());
 		this.setPageTransformer(false, new CubeTransformer());
@@ -236,7 +238,9 @@ public class CubeFlipperViewPager extends ViewPager {
 	}
 
 	public void setCurrentItemFromJs(int item, boolean animated) {
+		mIsCurrentItemFromJs = true;
 		setCurrentItem(item, animated);
+		mIsCurrentItemFromJs = false;
 	}
 
 	public void setScrollEnabled(boolean scrollEnabled) {
