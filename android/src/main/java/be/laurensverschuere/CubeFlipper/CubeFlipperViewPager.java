@@ -291,9 +291,11 @@ public class CubeFlipperViewPager extends ViewPager {
 		this.direction = direction;
 	}
 
-	public void setCurrentItemFromJs(int item, boolean animated) {
+	public void setCurrentItemFromJs(int item, boolean animated, double duration) {
 		mIsCurrentItemFromJs = true;
+		setScrollDurationFactor(duration);
 		setCurrentItem(item, animated);
+		setScrollDurationFactor(1); // reset
 		mIsCurrentItemFromJs = false;
 	}
 

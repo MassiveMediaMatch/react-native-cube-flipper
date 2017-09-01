@@ -61,12 +61,6 @@ public class CubeFlipperViewPagerManager extends ViewGroupManager<CubeFlipperVie
 		}
 	}
 
-	@ReactProp(name = "scrollDuration")
-	public void setScrollDuration(CubeFlipperViewPager viewPager, double duration)
-	{
-		viewPager.setScrollDurationFactor(duration);
-	}
-
 	@Override
 	public boolean needsCustomLayoutForChildren() {
 		return true;
@@ -98,11 +92,11 @@ public class CubeFlipperViewPagerManager extends ViewGroupManager<CubeFlipperVie
 		Assertions.assertNotNull(args);
 		switch (commandType) {
 			case COMMAND_SET_PAGE: {
-				viewPager.setCurrentItemFromJs(args.getInt(0), true);
+				viewPager.setCurrentItemFromJs(args.getInt(0), true, args.getDouble(1));
 				return;
 			}
 			case COMMAND_SET_PAGE_WITHOUT_ANIMATION: {
-				viewPager.setCurrentItemFromJs(args.getInt(0), false);
+				viewPager.setCurrentItemFromJs(args.getInt(0), false, 1);
 				return;
 			}
 			default:

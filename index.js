@@ -12,7 +12,6 @@ class CubeFlipper extends React.Component {
 		peekEnabled?: boolean,
 		keyboardDismissMode?: 'none' | 'on-drag',
 		scrollEnabled?: boolean,
-		scrollDuration?: Number,
 		swipeDirection?: 'all' | 'left' | 'right' | 'none'
 	};
 
@@ -65,11 +64,6 @@ class CubeFlipper extends React.Component {
 		* The default value is true.
 		*/
 		scrollEnabled: PropTypes.bool,
-
-		/**
-		 * duration of moving between views
-		 */
-		scrollDuration: PropTypes.number,
 
 		/**
 		 * allowed direction of swiping
@@ -149,11 +143,11 @@ class CubeFlipper extends React.Component {
 	* A helper function to scroll to a specific page in the ViewPager.
 	* The transition between pages will be animated.
 	*/
-	setPage = (selectedPage: number) => {
+	setPage = (selectedPage: number, duration: number) => {
 		UIManager.dispatchViewManagerCommand(
 			findNodeHandle(this),
 			UIManager.RCTCubeFlipper.Commands.setPage,
-			[selectedPage],
+			[selectedPage, duration],
 		);
 	};
 
