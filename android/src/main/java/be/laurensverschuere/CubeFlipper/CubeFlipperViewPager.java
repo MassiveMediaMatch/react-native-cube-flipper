@@ -6,6 +6,8 @@ import android.support.v4.view.ViewPager;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.view.View;
+import android.view.animation.Interpolator;
+import android.widget.Scroller;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
@@ -15,6 +17,7 @@ import com.facebook.react.uimanager.events.EventDispatcher;
 import com.facebook.react.uimanager.events.NativeGestureUtil;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 import com.facebook.react.views.viewpager.ReactViewPager;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -150,20 +153,71 @@ public class CubeFlipperViewPager extends ViewPager {
 		}
 	}
 
+	public class ScrollerCustomDuration extends Scroller {
+
+		private double mScrollFactor = 1;
+
+		public ScrollerCustomDuration(Context context) {
+			super(context);
+		}
+
+		public ScrollerCustomDuration(Context context, Interpolator interpolator) {
+			super(context, interpolator);
+		}
+
+		//@SuppressLint("NewApi")
+		public ScrollerCustomDuration(Context context, Interpolator interpolator, boolean flywheel) {
+			super(context, interpolator, flywheel);
+		}
+
+		/**
+		 * Set the factor by which the duration will change
+		 */
+		public void setScrollDurationFactor(double scrollFactor) {
+			mScrollFactor = scrollFactor;
+		}
+
+		@Override
+		public void startScroll(int startX, int startY, int dx, int dy, int duration) {
+			super.startScroll(startX, startY, dx, dy, (int) (duration * mScrollFactor));
+		}
+
+	}
 
 	private final EventDispatcher mEventDispatcher;
 	private boolean mScrollEnabled = true;
 	private boolean mIsCurrentItemFromJs = false;
 	private float initialXValue;
 	private SwipeDirection direction;
+	private ScrollerCustomDuration mScroller = null;
 
 	public CubeFlipperViewPager(ReactContext reactContext) {
 		super(reactContext);
+
+		try {
+			Field scroller = ViewPager.class.getDeclaredField("mScroller");
+			scroller.setAccessible(true);
+			Field interpolator = ViewPager.class.getDeclaredField("sInterpolator");
+			interpolator.setAccessible(true);
+
+			mScroller = new ScrollerCustomDuration(getContext(),
+					(Interpolator) interpolator.get(null));
+			scroller.set(this, mScroller);
+		} catch (Exception e) {
+		}
+
 		mEventDispatcher = reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher();
 		mIsCurrentItemFromJs = false;
 		addOnPageChangeListener(new PageChangeListener());
 		setAdapter(new CubePagerAdapter());
 		this.setPageTransformer(false, new CubeTransformer());
+	}
+
+	/**
+	 * Set the factor by which the duration will change
+	 */
+	public void setScrollDurationFactor(double scrollFactor) {
+		mScroller.setScrollDurationFactor(scrollFactor);
 	}
 
 	@Override

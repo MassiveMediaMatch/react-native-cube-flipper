@@ -12,6 +12,7 @@ class CubeFlipper extends React.Component {
 		peekEnabled?: boolean,
 		keyboardDismissMode?: 'none' | 'on-drag',
 		scrollEnabled?: boolean,
+		scrollDuration?: Number,
 		swipeDirection?: 'all' | 'left' | 'right' | 'none'
 	};
 
@@ -66,7 +67,12 @@ class CubeFlipper extends React.Component {
 		scrollEnabled: PropTypes.bool,
 
 		/**
-		 * 
+		 * duration of moving between views
+		 */
+		scrollDuration: PropTypes.number,
+
+		/**
+		 * allowed direction of swiping
 		 */
 		swipeDirection: PropTypes.oneOf([
 			'all', // default

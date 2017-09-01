@@ -1,7 +1,11 @@
 package be.laurensverschuere.CubeFlipper;
 
+import android.content.Context;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Interpolator;
+import android.widget.Scroller;
 import com.facebook.infer.annotation.Assertions;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.common.MapBuilder;
@@ -10,6 +14,7 @@ import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
 import com.facebook.react.uimanager.annotations.ReactProp;
 import com.facebook.react.views.viewpager.ReactViewPager;
+import java.lang.reflect.Field;
 import java.util.Map;
 import javax.annotation.Nullable;
 
@@ -29,7 +34,8 @@ public class CubeFlipperViewPagerManager extends ViewGroupManager<CubeFlipperVie
 	}
 
 	@Override protected CubeFlipperViewPager createViewInstance(ThemedReactContext reactContext) {
-		return new CubeFlipperViewPager(reactContext);
+		CubeFlipperViewPager vp = new CubeFlipperViewPager(reactContext);
+		return vp;
 	}
 
 
@@ -53,6 +59,12 @@ public class CubeFlipperViewPagerManager extends ViewGroupManager<CubeFlipperVie
 			default:
 				viewPager.setAllowedSwipeDirection(CubeFlipperViewPager.SwipeDirection.all);
 		}
+	}
+
+	@ReactProp(name = "scrollDuration")
+	public void setScrollDuration(CubeFlipperViewPager viewPager, double duration)
+	{
+		viewPager.setScrollDurationFactor(duration);
 	}
 
 	@Override
