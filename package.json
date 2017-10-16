@@ -2,11 +2,13 @@
 {
   "name": "react-native-cube-flipper",
   "version": "0.0.3",
-  "description": "",
+  "description": "iOS / android cub component like instagram stories",
   "main": "index.js",
   "keywords": [
     "react-native", "cube", "instragram", "stories", "animation"
   ],
+  "homepage": "https://github.com/LauR3y/CubeFlipper",
+  "summary": "Instagram cube",
   "author": "",
   "license": "",
   "peerDependencies": {
