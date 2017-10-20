@@ -36,6 +36,9 @@ project.xcworkspace
 build/
 .idea
 .gradle
+gradle/
+gradlew
+gradlew.bat
 local.properties
 *.iml
 

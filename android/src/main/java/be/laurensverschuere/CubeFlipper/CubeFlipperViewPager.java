@@ -117,19 +117,25 @@ public class CubeFlipperViewPager extends ViewPager {
 		public boolean isViewFromObject(View view, Object object) {
 			return view == object;
 		}
+
+		public int getProcessedPosition(int position) {
+			return CubeFlipperUtil.getProcessedPagerAdapterPosition(getContext(), this.getCount(), position);
+		}
 	}
 
 	private class PageChangeListener implements OnPageChangeListener {
 
 		@Override
 		public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+			int actualPosition = getAdapter().getProcessedPosition(position);
 			mEventDispatcher.dispatchEvent(
-					new PageScrollEvent(getId(), position, positionOffset, mIsCurrentItemFromJs == false));
+					new PageScrollEvent(getId(), actualPosition, positionOffset, mIsCurrentItemFromJs == false));
 		}
 
 		@Override
 		public void onPageSelected(int position) {
-			mEventDispatcher.dispatchEvent(new PageSelectedEvent(getId(), position, mIsCurrentItemFromJs == false));
+			int actualPosition = getAdapter().getProcessedPosition(position);
+			mEventDispatcher.dispatchEvent(new PageSelectedEvent(getId(), actualPosition, mIsCurrentItemFromJs == false));
 		}
 
 		@Override
@@ -209,8 +215,17 @@ public class CubeFlipperViewPager extends ViewPager {
 		mEventDispatcher = reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher();
 		mIsCurrentItemFromJs = false;
 		addOnPageChangeListener(new PageChangeListener());
-		setAdapter(new CubePagerAdapter());
+
+		CubePagerAdapter adapter = new CubePagerAdapter();
+		setAdapter(adapter);
+		int startPosition = adapter.getProcessedPosition(0);
+		if (startPosition > 0) {
+			this.setCurrentItem(startPosition, false);
+		}
+
 		this.setPageTransformer(false, new CubeTransformer());
+
+		CubeFlipperUtil.fixLayoutDirection(this);
 	}
 
 	/**
@@ -272,12 +287,24 @@ public class CubeFlipperViewPager extends ViewPager {
 		if(event.getAction()==MotionEvent.ACTION_MOVE) {
 			try {
 				float diffX = event.getX() - initialXValue;
-				if (diffX > 0 && direction == SwipeDirection.right ) {
+				if (diffX > 0) {
 					// swipe from left to right detected
-					return false;
-				}else if (diffX < 0 && direction == SwipeDirection.left ) {
+					if (!CubeFlipperUtil.getShouldAdaptPagerPositionToRtl(getContext())) {
+						if (direction == SwipeDirection.right) {
+							return false;
+						}
+					} else if (direction == SwipeDirection.left) {
+						return false;
+					}
+				} else if (diffX < 0) {
 					// swipe from right to left detected
-					return false;
+					if (!CubeFlipperUtil.getShouldAdaptPagerPositionToRtl(getContext())) {
+						if (direction == SwipeDirection.left) {
+							return false;
+						}
+					} else if (direction == SwipeDirection.right) {
+						return false;
+					}
 				}
 			} catch (Exception exception) {
 				exception.printStackTrace();
@@ -292,9 +319,11 @@ public class CubeFlipperViewPager extends ViewPager {
 	}
 
 	public void setCurrentItemFromJs(int item, boolean animated, double duration) {
+		int actualItem = getAdapter().getProcessedPosition(item);
+
 		mIsCurrentItemFromJs = true;
 		setScrollDurationFactor(duration);
-		setCurrentItem(item, animated);
+		setCurrentItem(actualItem, animated);
 		setScrollDurationFactor(1); // reset
 		mIsCurrentItemFromJs = false;
 	}
@@ -304,11 +333,18 @@ public class CubeFlipperViewPager extends ViewPager {
 	}
 
 	/*package*/ void addViewToAdapter(View child, int index) {
-		getAdapter().addView(child, index);
+		int actualIndex = getAdapter().getProcessedPosition(index);
+		getAdapter().addView(child, actualIndex);
+
+		int currentActualIndex = getAdapter().getProcessedPosition(getCurrentItem());
+		if (currentActualIndex > 0) {
+			setCurrentItem(getAdapter().getProcessedPosition(0), false);
+		}
 	}
 
 	/*package*/ void removeViewFromAdapter(int index) {
-		getAdapter().removeViewAt(index);
+		int actualIndex = getAdapter().getProcessedPosition(index);
+		getAdapter().removeViewAt(actualIndex);
 	}
 
 	/*package*/ int getViewCountInAdapter() {
@@ -316,7 +352,8 @@ public class CubeFlipperViewPager extends ViewPager {
 	}
 
 	/*package*/ View getViewFromAdapter(int index) {
-		return getAdapter().getViewAt(index);
+		int actualIndex = getAdapter().getProcessedPosition(index);
+		return getAdapter().getViewAt(actualIndex);
 	}
 
 	public void setViews(List<View> views) {
