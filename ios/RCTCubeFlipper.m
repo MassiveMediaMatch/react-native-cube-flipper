@@ -193,26 +193,26 @@
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
-	self.onPageScrollStateChanged(@{@"state":@"dragging"});
+	self.onPageScrollStateChanged(@{@"pageScrollState":@"dragging"});
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-	self.index = scrollView.contentOffset.x / scrollView.frame.size.width;
-	self.onPageSelected(@{@"position":@(self.index), @"manual":@(scrollView.dragging)});
-	self.onPageScrollStateChanged(@{@"state":@"idle"});
+    self.index = scrollView.contentOffset.x / scrollView.frame.size.width;
+    self.onPageSelected(@{@"position":@(self.index), @"manual":@(scrollView.dragging)});
+    self.onPageScrollStateChanged(@{@"pageScrollState":@"idle"});
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
 {
 	self.index = scrollView.contentOffset.x / scrollView.frame.size.width;
 	self.onPageSelected(@{@"position":@(self.index), @"manual":@(scrollView.dragging)});
-	self.onPageScrollStateChanged(@{@"state":@"idle"});
+	self.onPageScrollStateChanged(@{@"pageScrollState":@"idle"});
 }
 
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
 {
-	self.onPageScrollStateChanged(@{@"state":@"settling"});
+	self.onPageScrollStateChanged(@{@"pageScrollState":@"settling"});
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
