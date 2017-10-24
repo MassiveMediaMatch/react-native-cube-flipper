@@ -11,6 +11,7 @@
 
 
 @interface RCTCubeFlipper()	<UIScrollViewDelegate, UIGestureRecognizerDelegate>
+@property (nonatomic, assign) BOOL isViewInitialized;
 @property (nonatomic, assign) CGFloat maxAngle;
 @property (nonatomic, strong) NSMutableArray<UIView*> *childViews;
 @property (nonatomic, strong) UIStackView *stackView;
@@ -46,32 +47,48 @@
 
 #pragma mark - view lifecycle
 
-- (void)didMoveToSuperview
+- (void)layoutSubviews
 {
-	[super didMoveToSuperview];
+	[super layoutSubviews];
 	
-	// stackView
-	self.stackView = [UIStackView new];
-	self.stackView.translatesAutoresizingMaskIntoConstraints = NO;
-	self.stackView.axis = UILayoutConstraintAxisHorizontal;
-	[super addSubview:self.stackView];
-	
-	// constraints
-	[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeading multiplier:1 constant:0]];
-	[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTop multiplier:1 constant:0]];
-	[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeHeight multiplier:1 constant:0]];
-	//[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterY multiplier:1 constant:0]];
-	[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTrailing multiplier:1 constant:0]];
-	[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1 constant:0]];
+	if(!self.isViewInitialized && self.childViews.count > 0 && self.superview)
+	{
+		// stackView
+		if (@available(iOS 9.0, *))
+		{
+			self.stackView = [UIStackView new];
+			self.stackView.translatesAutoresizingMaskIntoConstraints = NO;
+			self.stackView.axis = UILayoutConstraintAxisHorizontal;
+			[super addSubview:self.stackView];
+			[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeading multiplier:1 constant:0]];
+			[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTop multiplier:1 constant:0]];
+			[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeHeight multiplier:1 constant:0]];
+			[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTrailing multiplier:1 constant:0]];
+			[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1 constant:0]];
+		}
+		
+		// subviews
+		for(UIView *view in self.childViews)
+		{
+			view.layer.masksToBounds = YES;
+			[self.stackView addArrangedSubview:view];
+			
+			[self addConstraint:[NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeWidth multiplier:1 constant:0]];
+		}
+		
+		self.isViewInitialized = YES;
+		[self setNeedsLayout];
+		[self layoutIfNeeded];
+	}
+}
+
+- (void)willMoveToSuperview:(UIView *)newSuperview
+{
+	[self setNeedsLayout];
 }
 
 - (void)addSubview:(UIView *)view
 {
-	view.layer.masksToBounds = YES;
-	[self.stackView addArrangedSubview:view];
-	
-	[self addConstraint:[NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeWidth multiplier:1 constant:0]];
-	
 	[self.childViews addObject:view];
 }
 

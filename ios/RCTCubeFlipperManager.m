@@ -28,38 +28,19 @@ RCT_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, RCTBubblingEventBlock);
 	return self.cubeFlipper;
 }
 
-RCT_REMAP_METHOD(setPage, setPage:(NSNumber*)reactTag page:(NSInteger)page animationSpeed:(NSInteger)animationSpeed)
+RCT_REMAP_METHOD(setPage, setPage:(nonnull NSNumber*)reactTag page:(NSInteger)page animationSpeed:(NSInteger)animationSpeed)
 {
 	dispatch_async(dispatch_get_main_queue(), ^{
 		[self.cubeFlipper setPage:page animationSpeed:animationSpeed];
 	});
 }
 
-RCT_REMAP_METHOD(setPageWithoutAnimation, setPageWithoutAnimation:(NSNumber*)reactTag page:(NSInteger)page)
+RCT_REMAP_METHOD(setPageWithoutAnimation, setPageWithoutAnimation:(nonnull NSNumber*)reactTag page:(NSInteger)page)
 {
 	dispatch_async(dispatch_get_main_queue(), ^{
 		[self.cubeFlipper setPage:page animationSpeed:0];
 	});
 }
-
-
-#pragma mark - <CubeFlipperDelegate>
-
-- (void)cubeFlipperOnPageScrollWithIndex:(NSInteger)index offset:(CGFloat)offset isDragging:(BOOL)isDragging
-{
-	
-}
-
-- (void)cubeFlipperOnPageSelectedWithIndex:(NSInteger)index isDragging:(BOOL)isDragging
-{
-	
-}
-
-- (void)cubeFlipperOnPageScrollStateChangedWithState:(NSString*)state
-{
-	
-}
-
 
 
 @end
