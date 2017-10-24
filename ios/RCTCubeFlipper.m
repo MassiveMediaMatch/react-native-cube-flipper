@@ -2,246 +2,230 @@
 //  RCTCubeFlipper.m
 //  RCTCubeFlipper
 //
+//  Created by Øyvind Hauge on 11/08/16.
+//  Copyright © 2016 Oyvind Hauge. All rights reserved.
+//
 
 #import <Foundation/Foundation.h>
 #import "RCTCubeFlipper.h"
 
-@interface RCTCubeFlipper()
-@property (nonatomic, assign) CGPoint initialCenter;
-@property (nonatomic, assign) int currentIndex;
-@property (nonatomic, assign) int nextIndex;
-@property (nonatomic, assign) long numberOfFaces;
-@property (nonatomic, assign) bool initialized;
-@property (nonatomic, assign) bool snap;
-@property (nonatomic, assign) bool panning;
-@property (nonatomic, strong) UIView *nextSubview;
-@property (nonatomic, strong) UIView *nextScreenshot;
-@property (nonatomic, strong) CATransition *animation;
-@property (nonatomic, strong) NSTimer *timer;
 
-
+@interface RCTCubeFlipper()	<UIScrollViewDelegate, UIGestureRecognizerDelegate>
+@property (nonatomic, assign) CGFloat maxAngle;
+@property (nonatomic, strong) NSMutableArray<UIView*> *childViews;
+@property (nonatomic, strong) UIStackView *stackView;
+@property (nonatomic, assign) NSUInteger index;
 @end
+
 
 @implementation RCTCubeFlipper
 
-- (instancetype)init {
-    if ((self = [super init])) {
-        UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
-        [pan setMinimumNumberOfTouches:1];
-        [pan setMaximumNumberOfTouches:1];
-        [self addGestureRecognizer:pan];
-        self.initialized = false;
-        self.currentIndex = 0;
-        self.nextIndex = 0;
-        self.snap = false;
-    }
-    return self;
+
+#pragma mark - init
+
+- (id)init
+{
+	self = [super init];
+	if(self)
+	{
+		self.maxAngle = 60.0f;
+		self.childViews = [NSMutableArray new];
+		
+		// scrollview
+		self.backgroundColor = [UIColor blackColor];
+		self.showsHorizontalScrollIndicator = NO;
+		self.showsVerticalScrollIndicator = NO;
+		self.pagingEnabled = YES;
+		self.bounces = NO;
+		self.delegate = self;
+		self.disableLeftScrolling = YES;
+	}
+	return self;
 }
 
-- (void)layoutSubviews {
-    if (!self.initialized) {
-        self.numberOfFaces = [self.subviews count];
-        self.initialized = true;
-    }
+
+#pragma mark - view lifecycle
+
+- (void)didMoveToSuperview
+{
+	[super didMoveToSuperview];
+	
+	// stackView
+	self.stackView = [UIStackView new];
+	self.stackView.translatesAutoresizingMaskIntoConstraints = NO;
+	self.stackView.axis = UILayoutConstraintAxisHorizontal;
+	[super addSubview:self.stackView];
+	
+	// constraints
+	[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeading multiplier:1 constant:0]];
+	[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTop multiplier:1 constant:0]];
+	[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeHeight multiplier:1 constant:0]];
+	//[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterY multiplier:1 constant:0]];
+	[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTrailing multiplier:1 constant:0]];
+	[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1 constant:0]];
 }
 
-// Handle the pan gesture to rotate the cube
-- (void)handlePan:(UIPanGestureRecognizer *)pan {
-    
-    // Get the current view
-    UIView *_currentSubview = [self.subviews objectAtIndex:self.currentIndex];
-    
-    // How far we've moved
-    CGPoint translation = [pan translationInView:self];
-    
-    // Capture velocity for flick gesture
-    CGPoint velocity = [pan velocityInView:pan.view];
-    double percentageOfWidthIncludingVelocity = (translation.x + 0.25 * velocity.x) / self.frame.size.width;
-    
-    // Moving left
-    if (translation.x < 0) {
-        self.nextIndex = 0;
-        
-        // Get the next subview in line
-        if (self.currentIndex + 1 < self.numberOfFaces) {
-            self.nextIndex = self.currentIndex + 1;
-        }
-        
-        if (pan.state == UIGestureRecognizerStateBegan) {
-            // Take a screenshot of the next face on first gesture
-            self.nextSubview = [self.subviews objectAtIndex:self.nextIndex];
-            self.nextScreenshot = [self.nextSubview snapshotViewAfterScreenUpdates:NO];
-            
-            // Start the animation
-            [CATransaction begin];
-            [self addSubview:self.nextScreenshot];
-            self.animation = [CATransition animation];
-            self.animation.duration = 1.0;
-            [self.animation setType:@"cube"];
-            [self.animation setSubtype:kCATransitionFromRight];
-            //      [self.animation setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
-            
-            self.layer.speed = 0.0;
-            [[self layer] addAnimation:self.animation forKey:@"cube"];
-            [CATransaction commit];
-            
-            self.panning = true;
-        }
-        
-        // pan the cube
-        if (self.panning) {
-            self.layer.timeOffset = fabs(translation.x) / self.frame.size.width;
-        }
-        
-        // Once we stop the gesture, fulfill the animation
-        // Check to make sure we were panning though because sometimes we fail to take a screenshot
-        // and that makes it look bad
-        if (pan.state == UIGestureRecognizerStateEnded && self.panning) {
-            // Continue with the animation
-            
-            [self.layer removeAllAnimations];
-            [self.nextScreenshot removeFromSuperview];
-            
-            self.layer.speed = 1.0;
-            
-            [CATransaction begin];
-            self.animation = [CATransition animation];
-            self.animation.duration = 1.0;
-            
-            // If we're past a certain time, just move forward
-            if (self.layer.timeOffset >= 0.5) {
-                self.snap = YES;
-                self.animation.speed = -0.75;
-                self.animation.beginTime = CACurrentMediaTime() + ((self.layer.timeOffset - 1.0) * 1.25);
-            } else {
-                self.animation.speed = 0.75;
-                self.animation.beginTime = CACurrentMediaTime() - ((1.0 - self.layer.timeOffset) * 1.25);
-            }
-            
-            self.animation.fillMode = kCAFillModeForwards;
-            self.animation.removedOnCompletion = NO; // prevents image from flickering
-            [self.animation setType:@"cube"];
-            [self.animation setSubtype:kCATransitionFromLeft];
-            
-            [CATransaction setCompletionBlock:^{
-                [self.layer removeAllAnimations];
-                
-                [self.nextScreenshot removeFromSuperview];
-                
-                if (self.snap == YES) {
-                    // Move the next image/view into place
-                    CGRect currentSubviewOffsetFrame = [[_currentSubview.layer presentationLayer] frame];
-                    currentSubviewOffsetFrame.origin.x = -1 * _currentSubview.bounds.size.width * (self.currentIndex + 1);
-                    _currentSubview.frame = currentSubviewOffsetFrame;
-                    
-                    CGRect nextSubviewOffsetFrame = [[self.nextSubview.layer presentationLayer] frame];
-                    nextSubviewOffsetFrame.origin.x = 0;
-                    self.nextSubview.frame = nextSubviewOffsetFrame;
-                    
-                    self.currentIndex = self.nextIndex;
-                }
-                self.snap = NO;
-            }];
-            
-            [[self layer] addAnimation:self.animation forKey:@"cube"];
-            [CATransaction commit];
-            
-            self.panning = false;
-        }
-    }
-    // End Moving Left
-    
-    // Moving Right
-    if (translation.x >= 0) {
-        self.nextIndex = self.numberOfFaces - 1;
-        
-        // Get the next subview in line
-        if (self.currentIndex - 1 >= 0) {
-            self.nextIndex = self.currentIndex - 1;
-        }
-        
-        if (pan.state == UIGestureRecognizerStateBegan) {
-            // Take a screenshot of the next face on first gesture
-            self.nextSubview = [self.subviews objectAtIndex:self.nextIndex];
-            self.nextScreenshot = [self.nextSubview snapshotViewAfterScreenUpdates:NO];
-            
-            // Start the animation
-            [CATransaction begin];
-            [self addSubview:self.nextScreenshot];
-            self.animation = [CATransition animation];
-            self.animation.duration = 1.0;
-            [self.animation setType:@"cube"];
-            [self.animation setSubtype:kCATransitionFromLeft];
-            //      [self.animation setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
-            
-            self.layer.speed = 0.0;
-            [[self layer] addAnimation:self.animation forKey:@"cube"];
-            [CATransaction commit];
-            
-            self.panning = true;
-        }
-        
-        // pan the cube
-        if (self.panning) {
-            self.layer.timeOffset = fabs(translation.x) / self.frame.size.width;
-        }
-        
-        // Once we stop the gesture, fulfill the animation
-        // Check to make sure we were panning though because sometimes we fail to take a screenshot
-        // and that makes it look bad
-        if (pan.state == UIGestureRecognizerStateEnded && self.panning) {
-            // Continue with the animation
-            
-            [self.layer removeAllAnimations];
-            [self.nextScreenshot removeFromSuperview];
-            
-            self.layer.speed = 1.0;
-            
-            [CATransaction begin];
-            self.animation = [CATransition animation];
-            self.animation.duration = 1.0;
-            
-            // If we're past a certain time, just move forward
-            if (self.layer.timeOffset >= 0.5) {
-                self.snap = YES;
-                self.animation.speed = -0.75;
-                self.animation.beginTime = CACurrentMediaTime() + ((self.layer.timeOffset - 1.0) * 1.25);
-            } else {
-                self.animation.speed = 0.75;
-                self.animation.beginTime = CACurrentMediaTime() - ((1.0 - self.layer.timeOffset) * 1.25);
-            }
-            
-            self.animation.fillMode = kCAFillModeForwards;
-            self.animation.removedOnCompletion = NO; // prevents image from flickering
-            [self.animation setType:@"cube"];
-            [self.animation setSubtype:kCATransitionFromRight];
-            
-            [CATransaction setCompletionBlock:^{
-                [self.layer removeAllAnimations];
-                
-                [self.nextScreenshot removeFromSuperview];
-                
-                if (self.snap == YES) {
-                    // Move the next image/view into place
-                    CGRect currentSubviewOffsetFrame = [[_currentSubview.layer presentationLayer] frame];
-                    currentSubviewOffsetFrame.origin.x = -1 * _currentSubview.bounds.size.width * (self.currentIndex + 1);
-                    _currentSubview.frame = currentSubviewOffsetFrame;
-                    
-                    CGRect nextSubviewOffsetFrame = [[self.nextSubview.layer presentationLayer] frame];
-                    nextSubviewOffsetFrame.origin.x = 0;
-                    self.nextSubview.frame = nextSubviewOffsetFrame;
-                    
-                    self.currentIndex = self.nextIndex;
-                }
-                self.snap = NO;
-            }];
-            
-            [[self layer] addAnimation:self.animation forKey:@"cube"];
-            [CATransaction commit];
-            
-            self.panning = false;
-        }
-    }
-    // End Moving Right
+- (void)addSubview:(UIView *)view
+{
+	view.layer.masksToBounds = YES;
+	[self.stackView addArrangedSubview:view];
+	
+	[self addConstraint:[NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeWidth multiplier:1 constant:0]];
+	
+	[self.childViews addObject:view];
 }
+
+- (void)willRemoveSubview:(UIView *)subview
+{
+	[self.stackView removeArrangedSubview:subview];
+	[self.childViews removeObject:subview];
+}
+
+
+#pragma mark - public
+
+- (void)setPage:(NSInteger)page animationSpeed:(NSInteger)animationSpeed
+{
+	[self scrollToViewAtIndex:page animated:(animationSpeed > 0)];
+}
+
+
+#pragma mark - helpers
+
+- (void)scrollToViewAtIndex:(NSUInteger)index animated:(BOOL)animated
+{
+	if(index < self.childViews.count) {
+		CGFloat width = self.frame.size.width;
+		CGFloat height = self.frame.size.height;
+		CGRect frame = CGRectMake(index * width, 0, width, height);
+		[self scrollRectToVisible:frame animated:animated];
+	}
+}
+
+- (void)transformViewsInScrollView:(UIScrollView*)scrollView
+{
+	CGFloat xOffset = scrollView.contentOffset.x;
+	CGFloat svWidth = scrollView.frame.size.width;
+	CGFloat deg = self.maxAngle / self.bounds.size.width * xOffset;
+	
+	for(NSUInteger index = 0; index < self.childViews.count; index++)
+	{
+		UIView *view = self.childViews[index];
+		deg = index == 0 ? deg : deg - self.maxAngle;
+		CGFloat rad = deg * (M_PI / 180);
+		
+		CATransform3D transform = CATransform3DIdentity;
+		transform.m34 = 1.0f / 500.0f;
+		transform = CATransform3DRotate(transform, rad, 0, 1, 0);
+		
+		view.layer.transform = transform;
+		
+		CGFloat x = xOffset / svWidth > index ? 1.0 : 0.0;
+		
+		[self setAnchorPoint:CGPointMake(x, 0.5f) forView:view];
+		[self applyShadowForView:view index:index];
+	}
+}
+
+- (CGRect)frameForPoint:(CGPoint)origin size:(CGSize)size
+{
+	return CGRectMake(origin.x, origin.y, size.width, size.height);
+}
+
+- (void)applyShadowForView:(UIView *)view index:(NSUInteger)index
+{
+	CGFloat w = self.frame.size.width;
+	CGFloat h = self.frame.size.height;
+	
+	CGRect r1 = [self frameForPoint:self.contentOffset size:self.frame.size];
+	CGRect r2 = [self frameForPoint:CGPointMake(index * w, 0) size:CGSizeMake(w, h)];
+	
+	// Only show shadow on right-hand side
+	if(r1.origin.x <= r2.origin.x)
+	{
+		CGRect intersection = CGRectIntersection(r1, r2);
+		CGFloat intArea = intersection.size.width * intersection.size.height;
+		CGRect rectUnion = CGRectUnion(r1, r2);
+		CGFloat unionArea = rectUnion.size.width * rectUnion.size.height;
+		
+		view.layer.opacity = intArea / unionArea;
+	}
+}
+
+- (void)setAnchorPoint:(CGPoint)anchorPoint forView:(UIView*)view
+{
+	CGPoint newPoint = CGPointMake(view.bounds.size.width * anchorPoint.x, view.bounds.size.height * anchorPoint.y);
+	CGPoint oldPoint = CGPointMake(view.bounds.size.width * view.layer.anchorPoint.x, view.bounds.size.height * view.layer.anchorPoint.y);
+	
+	newPoint = CGPointApplyAffineTransform(newPoint, view.transform);
+	oldPoint = CGPointApplyAffineTransform(oldPoint, view.transform);
+	
+	CGPoint position = view.layer.position;
+	position.x -= oldPoint.x;
+	position.x += newPoint.x;
+	
+	position.y -= oldPoint.y;
+	position.y += newPoint.y;
+	
+	view.layer.position = position;
+	view.layer.anchorPoint = anchorPoint;
+}
+
+						 
+#pragma mark - <UIScrollViewDelegate>
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+	self.onPageScrollStateChanged(@{@"state":@"dragging"});
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+	self.index = scrollView.contentOffset.x / scrollView.frame.size.width;
+	self.onPageSelected(@{@"position":@(self.index), @"manual":@(scrollView.dragging)});
+	self.onPageScrollStateChanged(@{@"state":@"idle"});
+}
+
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
+{
+	self.index = scrollView.contentOffset.x / scrollView.frame.size.width;
+	self.onPageSelected(@{@"position":@(self.index), @"manual":@(scrollView.dragging)});
+	self.onPageScrollStateChanged(@{@"state":@"idle"});
+}
+
+- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
+{
+	self.onPageScrollStateChanged(@{@"state":@"settling"});
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+	self.index = scrollView.contentOffset.x / scrollView.frame.size.width;
+	[self transformViewsInScrollView:scrollView];
+	self.onPageScroll(@{@"position":@(self.index), @"offset":@(scrollView.contentOffset.x), @"manual":@(scrollView.dragging)});
+}
+
+
+#pragma mark - <UIGestureRecognizerDelegate>
+
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
+{
+	// prevent user from scrolling back
+	if(self.disableLeftScrolling) {
+		if([gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) {
+			CGPoint translation = [((UIPanGestureRecognizer*)gestureRecognizer) translationInView:self];
+			if(translation.x > 0) {
+				return NO;
+			}
+		}
+	}
+	return YES;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(nonnull UIGestureRecognizer *)otherGestureRecognizer
+{
+	return NO;
+}
+
+
 @end
