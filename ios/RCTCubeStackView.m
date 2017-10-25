@@ -26,10 +26,7 @@
 }
 
 - (void)willRemoveSubview:(UIView *)subview
-{
-	
-	NSLog(@"cube willRemoveSubview: %@", subview);
-	
+{	
 	// notify delegate that a view was removed
 	if ([self.cubeDelegate respondsToSelector:@selector(cubeStackViewOnRemoveSubview:)]) {
 		[self.cubeDelegate cubeStackViewOnRemoveSubview:subview];
