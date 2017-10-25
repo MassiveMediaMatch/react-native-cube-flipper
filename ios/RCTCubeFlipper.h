@@ -20,9 +20,9 @@
 @interface RCTCubeFlipper : UIScrollView
 @property (nonatomic, weak) id<CubeFlipperDelegate> cubeDelegate;
 @property (nonatomic, assign) BOOL disableLeftScrolling;
-@property (nonatomic, copy) RCTBubblingEventBlock onPageScroll;
-@property (nonatomic, copy) RCTBubblingEventBlock onPageSelected;
-@property (nonatomic, copy) RCTBubblingEventBlock onPageScrollStateChanged;
+@property (nonatomic, copy, nullable) RCTBubblingEventBlock onPageScroll;
+@property (nonatomic, copy, nullable) RCTBubblingEventBlock onPageSelected;
+@property (nonatomic, copy, nullable) RCTBubblingEventBlock onPageScrollStateChanged;
 
 - (void)setPage:(NSInteger)page animationSpeed:(NSInteger)animationSpeed;
 @end

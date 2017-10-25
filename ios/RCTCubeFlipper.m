@@ -8,13 +8,15 @@
 
 #import <Foundation/Foundation.h>
 #import "RCTCubeFlipper.h"
+#import "RCTCubeStackView.h"
 
 
-@interface RCTCubeFlipper()	<UIScrollViewDelegate, UIGestureRecognizerDelegate>
+@interface RCTCubeFlipper()	<UIScrollViewDelegate, UIGestureRecognizerDelegate, CubeStackViewDelegate>
 @property (nonatomic, assign) BOOL isViewInitialized;
+@property (nonatomic, assign) BOOL shouldSendScrollEvents;
 @property (nonatomic, assign) CGFloat maxAngle;
 @property (nonatomic, strong) NSMutableArray<UIView*> *childViews;
-@property (nonatomic, strong) UIStackView *stackView;
+@property (nonatomic, strong) RCTCubeStackView *stackView;
 @property (nonatomic, assign) NSUInteger index;
 @end
 
@@ -29,6 +31,7 @@
 	self = [super init];
 	if(self)
 	{
+		self.shouldSendScrollEvents = YES;
 		self.maxAngle = 60.0f;
 		self.childViews = [NSMutableArray new];
 		
@@ -56,7 +59,8 @@
 		// stackView
 		if (@available(iOS 9.0, *))
 		{
-			self.stackView = [UIStackView new];
+			self.stackView = [RCTCubeStackView new];
+			self.stackView.cubeDelegate = self;
 			self.stackView.translatesAutoresizingMaskIntoConstraints = NO;
 			self.stackView.axis = UILayoutConstraintAxisHorizontal;
 			[super addSubview:self.stackView];
@@ -64,7 +68,7 @@
 			[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTop multiplier:1 constant:0]];
 			[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeHeight multiplier:1 constant:0]];
 			[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTrailing multiplier:1 constant:0]];
-			[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1 constant:0]];
+			//[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1 constant:0]];
 		}
 		
 		// subviews
@@ -89,13 +93,20 @@
 
 - (void)addSubview:(UIView *)view
 {
+	// check if this view was already added (react native calls addSubview when state changes in render method)
+	if([self.childViews indexOfObject:view] != NSNotFound) {
+		return;
+	}
 	[self.childViews addObject:view];
-}
-
-- (void)willRemoveSubview:(UIView *)subview
-{
-	[self.stackView removeArrangedSubview:subview];
-	[self.childViews removeObject:subview];
+	
+	// we need to wait for this view to be added to the superview. If that has already happened proceed by adding it to the view hierarchy + constraints
+	if(self.isViewInitialized)
+	{
+		view.layer.masksToBounds = YES;
+		[self.stackView addArrangedSubview:view];
+		
+		[self addConstraint:[NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeWidth multiplier:1 constant:0]];
+	}
 }
 
 
@@ -113,9 +124,7 @@
 {
 	if(index < self.childViews.count) {
 		CGFloat width = self.frame.size.width;
-		CGFloat height = self.frame.size.height;
-		CGRect frame = CGRectMake(index * width, 0, width, height);
-		[self scrollRectToVisible:frame animated:animated];
+		[self setContentOffset:CGPointMake(index * width, 0) animated:animated];
 	}
 }
 
@@ -137,7 +146,7 @@
 		
 		view.layer.transform = transform;
 		
-		CGFloat x = xOffset / svWidth > index ? 1.0 : 0.0;
+		CGFloat x = xOffset / svWidth > index ? 1.0 : 0.5;
 		
 		[self setAnchorPoint:CGPointMake(x, 0.5f) forView:view];
 		[self applyShadowForView:view index:index];
@@ -193,33 +202,43 @@
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
-	self.onPageScrollStateChanged(@{@"pageScrollState":@"dragging"});
+	if(self.shouldSendScrollEvents) {
+		self.onPageScrollStateChanged(@{@"state":@"dragging"});
+	}
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    self.index = scrollView.contentOffset.x / scrollView.frame.size.width;
-    self.onPageSelected(@{@"position":@(self.index), @"manual":@(scrollView.dragging)});
-    self.onPageScrollStateChanged(@{@"pageScrollState":@"idle"});
+	self.index = scrollView.contentOffset.x / scrollView.frame.size.width;
+	if(self.shouldSendScrollEvents) {
+		self.onPageSelected(@{@"position":@(self.index), @"manual":@(scrollView.dragging)});
+		self.onPageScrollStateChanged(@{@"pageScrollState":@"idle"});
+	}
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
 {
 	self.index = scrollView.contentOffset.x / scrollView.frame.size.width;
-	self.onPageSelected(@{@"position":@(self.index), @"manual":@(scrollView.dragging)});
-	self.onPageScrollStateChanged(@{@"pageScrollState":@"idle"});
+	if(self.shouldSendScrollEvents) {
+		self.onPageSelected(@{@"position":@(self.index), @"manual":@(scrollView.dragging)});
+		self.onPageScrollStateChanged(@{@"pageScrollState":@"idle"});
+	}
 }
 
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
 {
-	self.onPageScrollStateChanged(@{@"pageScrollState":@"settling"});
+	if(self.shouldSendScrollEvents) {
+		self.onPageScrollStateChanged(@{@"pageScrollState":@"settling"});
+	}
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
 	self.index = scrollView.contentOffset.x / scrollView.frame.size.width;
+	if(self.shouldSendScrollEvents) {
+		self.onPageScroll(@{@"position":@(self.index), @"offset":@(scrollView.contentOffset.x), @"manual":@(scrollView.dragging)});
+	}
 	[self transformViewsInScrollView:scrollView];
-	self.onPageScroll(@{@"position":@(self.index), @"offset":@(scrollView.contentOffset.x), @"manual":@(scrollView.dragging)});
 }
 
 
@@ -244,5 +263,25 @@
 	return NO;
 }
 
+
+#pragma mark - <CubeStackViewDelegate>
+
+- (void)cubeStackViewOnRemoveSubview:(UIView *)view
+{
+	NSUInteger index = [self.childViews indexOfObject:view];
+	if(index != NSNotFound)
+	{
+		[self.childViews removeObject:view];
+		
+		// the current index is further than the index of the view removed. We need to adjust the offset & the current index to display the correct new view
+		if(self.index >= index) {
+			self.shouldSendScrollEvents = NO; // prevent sending scroll events to react native
+			[self setContentOffset:CGPointMake(self.contentOffset.x - self.frame.size.width, 0) animated:NO];
+			self.shouldSendScrollEvents = YES;
+			self.index--;
+			[self transformViewsInScrollView:self];
+		}
+	}
+}
 
 @end
