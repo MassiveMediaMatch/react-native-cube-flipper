@@ -11,6 +11,9 @@
 #import "RCTCubeStackView.h"
 
 
+NSString * const RCTCubeFlipperDidBecomeActive = @"RCTCubeFlipperDidBecomeActiveNotificaiton";
+
+
 @interface RCTCubeFlipper()	<UIScrollViewDelegate, UIGestureRecognizerDelegate, CubeStackViewDelegate>
 @property (nonatomic, assign) BOOL isViewInitialized;
 @property (nonatomic, assign) BOOL shouldSendScrollEvents;
@@ -18,6 +21,7 @@
 @property (nonatomic, strong) NSMutableArray<UIView*> *childViews;
 @property (nonatomic, strong) RCTCubeStackView *stackView;
 @property (nonatomic, assign) NSUInteger index;
+@property (nonatomic, strong) NSLayoutConstraint *leftConstraint;
 @end
 
 
@@ -43,8 +47,15 @@
 		self.bounces = NO;
 		self.delegate = self;
 		self.disableLeftScrolling = YES;
+		
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(cubeFlipperDidBecomeActive:) name:RCTCubeFlipperDidBecomeActive object:nil];
 	}
 	return self;
+}
+
+- (void)dealloc
+{
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:RCTCubeFlipperDidBecomeActive object:nil];
 }
 
 
@@ -64,11 +75,11 @@
 			self.stackView.translatesAutoresizingMaskIntoConstraints = NO;
 			self.stackView.axis = UILayoutConstraintAxisHorizontal;
 			[super addSubview:self.stackView];
-			[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeading multiplier:1 constant:0]];
+			self.leftConstraint = [NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeading multiplier:1 constant:0];
+			[self addConstraint:self.leftConstraint];
 			[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTop multiplier:1 constant:0]];
 			[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeHeight multiplier:1 constant:0]];
 			[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTrailing multiplier:1 constant:0]];
-			//[self addConstraint:[NSLayoutConstraint constraintWithItem:self.stackView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1 constant:0]];
 		}
 		
 		// subviews
@@ -118,10 +129,20 @@
 }
 
 
+#pragma mark - notification center
+
+- (void)cubeFlipperDidBecomeActive:(NSNotification*)notification
+{
+	
+}
+
+
 #pragma mark - helpers
 
 - (void)scrollToViewAtIndex:(NSUInteger)index animated:(BOOL)animated
 {
+	self.userInteractionEnabled = NO; // prevent user interaction during transition
+	
 	if(index < self.childViews.count) {
 		CGFloat width = self.frame.size.width;
 		[self setContentOffset:CGPointMake(index * width, 0) animated:animated];
@@ -146,7 +167,7 @@
 		
 		view.layer.transform = transform;
 		
-		CGFloat x = xOffset / svWidth > index ? 1.0 : 0.5;
+		CGFloat x = xOffset / svWidth > index ? 1.0 : 0.0;
 		
 		[self setAnchorPoint:CGPointMake(x, 0.5f) forView:view];
 		[self applyShadowForView:view index:index];
@@ -197,32 +218,47 @@
 	view.layer.anchorPoint = anchorPoint;
 }
 
+- (void)onScrollAnimationFinished:(UIScrollView*)scrollView
+{
+	self.index = scrollView.contentOffset.x / scrollView.frame.size.width;
+	
+	// notify react native
+	if(self.shouldSendScrollEvents) {
+		self.onPageSelected(@{@"position":@(self.index), @"manual":@(scrollView.dragging)});
+		self.onPageScrollStateChanged(@{@"pageScrollState":@"idle"});
+	}
+}
+
 						 
 #pragma mark - <UIScrollViewDelegate>
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
 	if(self.shouldSendScrollEvents) {
-		self.onPageScrollStateChanged(@{@"state":@"dragging"});
+		self.onPageScrollStateChanged(@{@"pageScrollState":@"dragging"});
+	}
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+	NSUInteger newIndex = scrollView.contentOffset.x / scrollView.frame.size.width;
+	if(newIndex == self.index) {
+		if(!self.userInteractionEnabled) {
+			self.userInteractionEnabled = YES;
+		}
+	} else {
+		self.userInteractionEnabled = NO;
 	}
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-	self.index = scrollView.contentOffset.x / scrollView.frame.size.width;
-	if(self.shouldSendScrollEvents) {
-		self.onPageSelected(@{@"position":@(self.index), @"manual":@(scrollView.dragging)});
-		self.onPageScrollStateChanged(@{@"pageScrollState":@"idle"});
-	}
+	[self onScrollAnimationFinished:scrollView];
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
 {
-	self.index = scrollView.contentOffset.x / scrollView.frame.size.width;
-	if(self.shouldSendScrollEvents) {
-		self.onPageSelected(@{@"position":@(self.index), @"manual":@(scrollView.dragging)});
-		self.onPageScrollStateChanged(@{@"pageScrollState":@"idle"});
-	}
+	[self onScrollAnimationFinished:scrollView];
 }
 
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
@@ -238,6 +274,7 @@
 	if(self.shouldSendScrollEvents) {
 		self.onPageScroll(@{@"position":@(self.index), @"offset":@(scrollView.contentOffset.x), @"manual":@(scrollView.dragging)});
 	}
+	
 	[self transformViewsInScrollView:scrollView];
 }
 
@@ -273,15 +310,22 @@
 	{
 		[self.childViews removeObject:view];
 		
+		// fix a layout issue where anchorpoints are broken after this point. fixed by setting left constraint.
+		self.leftConstraint.constant = -self.frame.size.width * 0.5f;
+		[self setNeedsLayout];
+		//[self layoutIfNeeded];
+		
 		// the current index is further than the index of the view removed. We need to adjust the offset & the current index to display the correct new view
-		if(self.index >= index) {
-			self.shouldSendScrollEvents = NO; // prevent sending scroll events to react native
-			[self setContentOffset:CGPointMake(self.contentOffset.x - self.frame.size.width, 0) animated:NO];
+		if(self.index >= index)
+		{
+			self.shouldSendScrollEvents = NO;
+			[self setContentOffset:CGPointMake(self.contentOffset.x - self.bounds.size.width, 0) animated:NO];
 			self.shouldSendScrollEvents = YES;
 			self.index--;
-			[self transformViewsInScrollView:self];
 		}
 	}
+	
+	self.userInteractionEnabled = YES;
 }
 
 @end

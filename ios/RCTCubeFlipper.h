@@ -9,16 +9,17 @@
 #import <UIKit/UIKit.h>
 #import <React/RCTComponent.h>
 
+extern NSString* _Nullable const RCTCubeFlipperDidBecomeActive;
 
 @protocol CubeFlipperDelegate <NSObject>
 - (void)cubeFlipperOnPageScrollWithIndex:(NSInteger)index offset:(CGFloat)offset isDragging:(BOOL)isDragging;
 - (void)cubeFlipperOnPageSelectedWithIndex:(NSInteger)index isDragging:(BOOL)isDragging;
-- (void)cubeFlipperOnPageScrollStateChangedWithState:(NSString*)state;
+- (void)cubeFlipperOnPageScrollStateChangedWithState:(nonnull NSString*)state;
 @end
 
 
 @interface RCTCubeFlipper : UIScrollView
-@property (nonatomic, weak) id<CubeFlipperDelegate> cubeDelegate;
+@property (nonatomic, weak, nullable) id<CubeFlipperDelegate> cubeDelegate;
 @property (nonatomic, assign) BOOL disableLeftScrolling;
 @property (nonatomic, copy, nullable) RCTBubblingEventBlock onPageScroll;
 @property (nonatomic, copy, nullable) RCTBubblingEventBlock onPageSelected;
