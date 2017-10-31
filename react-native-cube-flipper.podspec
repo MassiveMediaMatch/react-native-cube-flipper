@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.license      = package['license']
   s.author       = package['author']
   s.platform     = :ios, "9.0"
-  s.source       = { :git => "https://github.com/LauR3y/CubeFlipper.git", :tag => "master" }
+  s.source       = { :git => "https://github.com/LauR3y/react-native-cube-flipper.git", :tag => "master" }
   s.source_files = "ios/*.{h,m}"
   s.requires_arc = true
 
