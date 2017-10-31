@@ -20,6 +20,7 @@ RCT_EXPORT_MODULE()
 RCT_EXPORT_VIEW_PROPERTY(onPageScroll, RCTBubblingEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onPageSelected, RCTBubblingEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, RCTBubblingEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL);
 
 - (UIView *)view {
 	if(!self.cubeFlipper) {
