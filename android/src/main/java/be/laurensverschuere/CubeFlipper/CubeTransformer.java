@@ -12,6 +12,21 @@ public class CubeTransformer implements ViewPager.PageTransformer {
 	@Override public void transformPage(View page, float position) {
 		//Log.d("TransformPage", "" + position);
 
+		this.preTransform(page, position);
+
+		if (android.os.Build.MANUFACTURER.equalsIgnoreCase("HUAWEI")) {
+			this.accordionTransform(page, position);
+		}
+		else {
+			this.cubeTransform(page, position);
+		}
+
+		if (position == 0) {
+			page.bringToFront();
+		}
+	}
+
+	private void preTransform(View page, float position) {
 		page.setRotationX(0);
 		page.setRotationY(0);
 		page.setRotation(0);
@@ -24,19 +39,31 @@ public class CubeTransformer implements ViewPager.PageTransformer {
 
 		page.setAlpha(position <= -1f || position >= 1f ? 0f : 1f);
 		page.setEnabled(false);
+	}
 
-		page.setPivotX(position < 0f ? page.getWidth() : 0f);
-		page.setPivotY(page.getHeight() * 0.5f);
-
+	private void cubeTransform(View page, float position) {
 		if (position > 0) {
+			page.setPivotX(0f);
+			page.setPivotY(page.getHeight() * 0.5f);
 			page.setRotationY(position * position * 60);
 		}
 		else {
+			page.setPivotX(page.getWidth());
+			page.setPivotY(page.getHeight() * 0.5f);
 			page.setRotationY(- (position * position * 60));
 		}
+	}
 
-		if (position == 0) {
-			page.bringToFront();
+	private void accordionTransform(View page, float position) {
+		if (position > 0) {
+			page.setPivotX(0f);
+			page.setPivotY(page.getHeight() * 0.5f);
+			page.setScaleX(1f - position);
+		}
+		else {
+			page.setPivotX(page.getWidth());
+			page.setPivotY(page.getHeight() * 0.5f);
+			page.setScaleX(1f + position);
 		}
 	}
 }
