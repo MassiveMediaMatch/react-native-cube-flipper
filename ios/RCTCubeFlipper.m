@@ -313,7 +313,7 @@ NSString * const RCTCubeFlipperDidBecomeActive = @"RCTCubeFlipperDidBecomeActive
 		// fix a layout issue where anchorpoints are broken after this point. fixed by setting left constraint.
 		self.leftConstraint.constant = -self.frame.size.width * 0.5f;
 		[self setNeedsLayout];
-		//[self layoutIfNeeded];
+		[self layoutIfNeeded];
 		
 		// the current index is further than the index of the view removed. We need to adjust the offset & the current index to display the correct new view
 		if(self.index >= index)
