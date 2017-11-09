@@ -17,7 +17,6 @@ public class CubeFlipperPackage implements ReactPackage {
       return Arrays.<NativeModule>asList(new CubeFlipperModule(reactContext));
     }
 
-    @Override
     public List<Class<? extends JavaScriptModule>> createJSModules() {
       return Collections.emptyList();
     }
