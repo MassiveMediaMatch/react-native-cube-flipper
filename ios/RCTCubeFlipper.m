@@ -61,6 +61,15 @@ NSString * const RCTCubeFlipperDidBecomeActive = @"RCTCubeFlipperDidBecomeActive
 
 #pragma mark - view lifecycle
 
+- (void)didMoveToWindow
+{
+	[super didMoveToWindow];
+	if (self.window == nil) {
+		self.leftConstraint.constant = 0;
+		[self setNeedsLayout];
+	}
+}
+
 - (void)layoutSubviews
 {
 	[super layoutSubviews];
@@ -106,7 +115,8 @@ NSString * const RCTCubeFlipperDidBecomeActive = @"RCTCubeFlipperDidBecomeActive
 {
 	// check if this view was already added (react native calls addSubview when state changes in render method)
 	if([self.childViews indexOfObject:view] != NSNotFound) {
-		return;
+		[self.childViews removeObject:view];
+		[self.stackView removeArrangedSubview:view];
 	}
 	[self.childViews addObject:view];
 	
@@ -318,12 +328,19 @@ NSString * const RCTCubeFlipperDidBecomeActive = @"RCTCubeFlipperDidBecomeActive
 		// the current index is further than the index of the view removed. We need to adjust the offset & the current index to display the correct new view
 		if(self.index >= index)
 		{
-			self.shouldSendScrollEvents = NO;
-			[self setContentOffset:CGPointMake(self.contentOffset.x - self.bounds.size.width, 0) animated:NO];
-			self.shouldSendScrollEvents = YES;
 			self.index--;
+			if(self.index <= 0) {
+				self.index = 0;
+			}
+			self.shouldSendScrollEvents = NO;
+			[self setContentOffset:CGPointMake(self.frame.size.width * self.index, 0) animated:NO];
+			self.shouldSendScrollEvents = YES;
 		}
 	}
+	
+	// update selected page after removal
+	self.onPageSelected(@{@"position":@(self.index), @"manual":@(self.dragging)});
+	self.onPageScrollStateChanged(@{@"pageScrollState":@"idle"});
 	
 	self.userInteractionEnabled = YES;
 }
