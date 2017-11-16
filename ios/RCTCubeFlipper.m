@@ -22,6 +22,7 @@ NSString * const RCTCubeFlipperDidBecomeActive = @"RCTCubeFlipperDidBecomeActive
 @property (nonatomic, strong) RCTCubeStackView *stackView;
 @property (nonatomic, assign) NSUInteger index;
 @property (nonatomic, strong) NSLayoutConstraint *leftConstraint;
+@property (nonatomic, assign) BOOL hasRemovedSubViews;
 @end
 
 
@@ -64,10 +65,15 @@ NSString * const RCTCubeFlipperDidBecomeActive = @"RCTCubeFlipperDidBecomeActive
 - (void)didMoveToWindow
 {
 	[super didMoveToWindow];
-	if (self.window == nil) {
-		self.leftConstraint.constant = 0;
-		[self setNeedsLayout];
+	
+	self.hasRemovedSubViews = NO;
+	if(self.window) {
+		self.leftConstraint.constant = -self.frame.size.width * 0.5f;
 	}
+	else if(self.window == nil && !self.hasRemovedSubViews) {
+		self.leftConstraint.constant = 0;
+	}
+	[self setNeedsLayout];
 }
 
 - (void)layoutSubviews
@@ -318,6 +324,7 @@ NSString * const RCTCubeFlipperDidBecomeActive = @"RCTCubeFlipperDidBecomeActive
 	NSUInteger index = [self.childViews indexOfObject:view];
 	if(index != NSNotFound)
 	{
+		self.hasRemovedSubViews = YES;
 		[self.childViews removeObject:view];
 		
 		// fix a layout issue where anchorpoints are broken after this point. fixed by setting left constraint.
