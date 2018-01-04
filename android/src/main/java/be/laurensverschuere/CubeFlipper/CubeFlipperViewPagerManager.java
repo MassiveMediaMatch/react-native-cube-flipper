@@ -61,6 +61,11 @@ public class CubeFlipperViewPagerManager extends ViewGroupManager<CubeFlipperVie
 		}
 	}
 
+	@ReactProp(name = "threeDAnimations", defaultBoolean = true)
+	public void setThreeDAnimations(CubeFlipperViewPager viewPager, boolean value) {
+		viewPager.setThreeDAnimations(value);
+	}
+
 	@Override
 	public boolean needsCustomLayoutForChildren() {
 		return true;

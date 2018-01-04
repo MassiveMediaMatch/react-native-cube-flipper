@@ -196,6 +196,7 @@ public class CubeFlipperViewPager extends ViewPager {
 	private float initialXValue;
 	private SwipeDirection direction;
 	private ScrollerCustomDuration mScroller = null;
+	private CubeTransformer mPageTransformer = null;
 
 	public CubeFlipperViewPager(ReactContext reactContext) {
 		super(reactContext);
@@ -223,7 +224,8 @@ public class CubeFlipperViewPager extends ViewPager {
 			this.setCurrentItem(startPosition, false);
 		}
 
-		this.setPageTransformer(false, new CubeTransformer());
+		mPageTransformer = new CubeTransformer();
+		this.setPageTransformer(false, mPageTransformer);
 
 		CubeFlipperUtil.fixLayoutDirection(this);
 	}
@@ -316,6 +318,10 @@ public class CubeFlipperViewPager extends ViewPager {
 
 	public void setAllowedSwipeDirection(SwipeDirection direction) {
 		this.direction = direction;
+	}
+
+	public void setThreeDAnimations(boolean threeDAnimations) {
+		mPageTransformer.setThreeDAnimations(threeDAnimations);
 	}
 
 	public void setCurrentItemFromJs(int item, boolean animated, double duration) {

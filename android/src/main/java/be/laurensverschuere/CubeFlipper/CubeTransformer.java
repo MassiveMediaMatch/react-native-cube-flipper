@@ -2,6 +2,7 @@ package be.laurensverschuere.CubeFlipper;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.util.Log;
 
 /**
  * Created by laurensverschuere on 11/08/2017.
@@ -9,12 +10,18 @@ import android.view.View;
 
 public class CubeTransformer implements ViewPager.PageTransformer {
 
+	private boolean threeDAnimations = true;
+
+	public void setThreeDAnimations(boolean threeDAnimations) {
+		this.threeDAnimations = threeDAnimations;
+	}
+
 	@Override public void transformPage(View page, float position) {
-		//Log.d("TransformPage", "" + position);
+//		Log.d("TransformPage", "" + position);
 
 		this.preTransform(page, position);
 
-		if (android.os.Build.MANUFACTURER.equalsIgnoreCase("HUAWEI")) {
+		if (!threeDAnimations || android.os.Build.MANUFACTURER.equalsIgnoreCase("HUAWEI")) {
 			this.accordionTransform(page, position);
 		}
 		else {

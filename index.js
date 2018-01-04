@@ -12,7 +12,8 @@ class CubeFlipper extends React.Component {
 		peekEnabled?: boolean,
 		keyboardDismissMode?: 'none' | 'on-drag',
 		scrollEnabled?: boolean,
-		swipeDirection?: 'all' | 'left' | 'right' | 'none'
+		swipeDirection?: 'all' | 'left' | 'right' | 'none',
+		threeDAnimations?: boolean
 	};
 
 	static propTypes = {
@@ -74,6 +75,12 @@ class CubeFlipper extends React.Component {
 			'right',
 			'none'
 		]),
+
+		/**
+		* When false, the animation won't use 3d transformations.
+		* The default value is true.
+		*/
+		threeDAnimations: PropTypes.bool,
 
 		/**
 		 * Whether enable showing peekFraction or not. If this is true, the preview of
